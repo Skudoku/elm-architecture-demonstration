@@ -30,6 +30,19 @@ A way to visualize the model. Usually this is some form of HTML, but other optio
 ### Demonstration
 Our customer is interested in keeping track of how many people enter a certain area. For this they want a simple counter.
 
+#### Setup
+Initialize a project with `elm init` accepting to create the `elm.json`. Create a `src` directory and open a file `Main.elm`. The contents is a jumping off point and is used to check if our code still works
+
+```elm
+module Main exposing (main)
+
+import Html
+
+
+main =
+    Html.text "Hello, World"
+```
+
 
 [elm-architecture]: https://guide.elm-lang.org/architecture/
 [elm]: http://elm-lang.org/
