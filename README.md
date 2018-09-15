@@ -43,8 +43,141 @@ main =
     Html.text "Hello, World"
 ```
 
+#### Model
+In order to keep track of the number of people we keep track of how many people are currently in the area. We do this by introducing a _record_ keeping track of a count.
+
+```elm
+type alias Model =
+    { count : Int
+    }
+```
+
+We want some abstractions to work with this model. We will introduce an empty start model.
+
+```elm
+emptyModel : Model
+emptyModel =
+    { count = 0
+    }
+```
+
+A way to register that a person enters the area.
+
+```elm
+increment : Model -> Model
+increment model =
+    { model | count = model.count + 1 }
+```
+
+And a way to register that a person leaves the area. As an extra check we will provide a _tagged_ model. We will tag a model whether it successfully could register the leave, or that according to our model the area was empty.
+
+```
+type DecrementStatus
+    = Successfull Model
+    | Underflow
+
+
+decrement : Model -> DecrementStatus
+decrement model =
+    if model.count > 0 then
+        Successfull { model | count = model.count - 1 }
+
+    else
+        Underflow
+```
+
+We now have modeled our problem. Notice that this can be done without a visual representation. In a sense it is independent.
+
+#### Update
+The `update` function accepts a _message_ and a model. The function will return the new model. The message should indicate how the model is to be changed. For us that will be either an person entered or person left.
+
+```elm
+type Message
+    = PersonEntered
+    | PersonLeft
+```
+
+No we need to respond correctly to these messages.
+
+```elm
+update : Message -> Model -> Model
+update message model =
+    case message of
+        PersonEntered ->
+            increment model
+
+        PersonLeft ->
+            case decrement model of
+                Successfull m ->
+                    m
+
+                Underflow ->
+                    model
+```
+
+Note that we could test this method without any dependency on running the application.
+
+#### View
+With our model and view in place it is time to create a view. A view accepts a model and returns `Html`. When a user interacts with our app, intent is the change the model. Because this is done with `Message` the return type is `Html.Html Message`.
+
+As a first shot we try, leaving out the interaction.
+
+```elm
+view : Model -> Html.Html Message
+view model =
+    Html.div []
+        [ Html.button [] [ Html.text "-" ]
+        , Html.span [] [ Html.text (String.fromInt model.count) ]
+        , Html.button [] [ Html.text "+" ]
+        ]
+```
+
+#### Wire everything together
+In order to see our changes we need to create a [`sandbox`][sandbox]. For this we need to import `Browser`.
+
+
+```elm
+import Browser
+```
+
+and change our main to
+
+```elm
+main =
+    Browser.sandbox
+        { init = emptyModel
+        , update = update
+        , view = view
+        }
+```
+
+`Browser.sandbox` accepts a record contain an initial model, an update function and a view function which we provide. If you open the reactor you should be created with some buttons and a count. Notice that the buttons do not update the model.
+
+#### Interaction
+Let's change that. In order to add interactivity we need to tell the view function when to send a message. For this we need `Html.Events`
+
+```elm
+import Html.Events as Event
+```
+
+Now our update function changes into
+
+```elm
+view : Model -> Html.Html Message
+view model =
+    Html.div []
+        [ Html.button [ Event.onClick PersonLeft ] [ Html.text "-" ]
+        , Html.span [] [ Html.text (String.fromInt model.count) ]
+        , Html.button [ Event.onClick PersonEntered ] [ Html.text "+" ]
+        ]
+```
+
+this will make the buttons respond to our intended changes. Note that we can't decrement passed zero.
+
+
 
 [elm-architecture]: https://guide.elm-lang.org/architecture/
 [elm]: http://elm-lang.org/
 [guide]: https://guide.elm-lang.org/
 [demo]: https://github.com/HAN-ASD-DT/elm-demonstration
+[sandbox]: https://package.elm-lang.org/packages/elm/browser/latest/Browser#sandbox
