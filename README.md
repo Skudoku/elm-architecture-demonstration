@@ -27,6 +27,10 @@ A way to change the model. It determines the how to model goes through various t
 #### View
 A way to visualize the model. Usually this is some form of HTML, but other options are available as well.
 
+### Demonstration
+Our customer is interested in keeping track of how many people enter a certain area. For this they want a simple counter.
+
+
 [elm-architecture]: https://guide.elm-lang.org/architecture/
 [elm]: http://elm-lang.org/
 [guide]: https://guide.elm-lang.org/
