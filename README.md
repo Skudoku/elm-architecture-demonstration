@@ -174,7 +174,83 @@ view model =
 
 this will make the buttons respond to our intended changes. Note that we can't decrement passed zero.
 
+### Change
+Seeing our solution our customer is very happy. She praises us all around. After a few weeks she has a new request. She would like to be notified when a person leaves while the area is empty. So we set out to fulfill the request.
 
+#### Model
+We update our model with a notification. Because it should not always be there, we give it the type `Maybe String`
+
+```elm
+type alias Model =
+    { count : Int
+    , notification : Maybe String
+    }
+```
+
+this will break our application, but the compiler helps us in telling where it breaks. We work hard to resolve that issue.
+
+```elm
+emptyModel : Model
+emptyModel =
+    { count = 0
+    , notification = Nothing
+    }
+```
+
+#### Update
+We will need to change the `update` function. Specifically, when a decrement fails we need to notify the user.
+
+```elm
+update : Message -> Model -> Model
+update message model =
+    case message of
+        PersonEntered ->
+            increment model
+
+        PersonLeft ->
+            case decrement model of
+                Successfull m ->
+                    m
+
+                Underflow ->
+                    { model | notification = Just "A person left an empty area " }
+```
+
+This will change the model to notify the user. Note that we haven't shown the notification yet.
+
+#### View
+We should show the notification when there is one.
+
+```elm
+view : Model -> Html.Html Message
+view model =
+    let
+        notification =
+            Maybe.withDefault "" model.notification
+    in
+    Html.div []
+        [ Html.div [] [ Html.span [] [ Html.text notification ] ]
+        , Html.div []
+            [ Html.button [ Event.onClick PersonLeft ] [ Html.text "-" ]
+            , Html.span [] [ Html.text (String.fromInt model.count) ]
+            , Html.button [ Event.onClick PersonEntered ] [ Html.text "+" ]
+            ]
+        ]
+```
+
+This will notify the user when something odd is going on.
+
+## Summary
+A basic Elm Architecture uses
+
+1. a model
+2. an update function
+3. a view function
+
+The compiler aids a developer when changes need to be made. She is signaled where changes break existing code. With effort a developer can minimize the places this happens.
+
+## Enhancements
+How can this demonstrations be improved?
 
 [elm-architecture]: https://guide.elm-lang.org/architecture/
 [elm]: http://elm-lang.org/

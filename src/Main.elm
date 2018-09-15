@@ -19,12 +19,14 @@ main =
 
 type alias Model =
     { count : Int
+    , notification : Maybe String
     }
 
 
 emptyModel : Model
 emptyModel =
     { count = 0
+    , notification = Nothing
     }
 
 
@@ -68,7 +70,7 @@ update message model =
                     m
 
                 Underflow ->
-                    model
+                    { model | notification = Just "A person left an empty area " }
 
 
 
@@ -77,8 +79,15 @@ update message model =
 
 view : Model -> Html.Html Message
 view model =
+    let
+        notification =
+            Maybe.withDefault "" model.notification
+    in
     Html.div []
-        [ Html.button [ Event.onClick PersonLeft ] [ Html.text "-" ]
-        , Html.span [] [ Html.text (String.fromInt model.count) ]
-        , Html.button [ Event.onClick PersonEntered ] [ Html.text "+" ]
+        [ Html.div [] [ Html.span [] [ Html.text notification ] ]
+        , Html.div []
+            [ Html.button [ Event.onClick PersonLeft ] [ Html.text "-" ]
+            , Html.span [] [ Html.text (String.fromInt model.count) ]
+            , Html.button [ Event.onClick PersonEntered ] [ Html.text "+" ]
+            ]
         ]
