@@ -30,28 +30,31 @@ emptyModel =
     }
 
 
-increment : Model -> Model
-increment model =
-    { model | count = model.count + 1 }
-
-
 type DecrementStatus
-    = Successfull Model
+    = SuccessfullDecrement Model
     | Underflow
 
+type IncrementStatus
+  = SuccessfullIncrement Model
+  | MaximumReached
+
+increment : Model -> IncrementStatus
+increment model =
+    if model.count < 80 then
+      SuccessfullIncrement { model | count = model.count + 1 }
+
+    else
+      MaximumReached
 
 decrement : Model -> DecrementStatus
 decrement model =
     if model.count > 0 then
-        Successfull { model | count = model.count - 1 }
+        SuccessfullDecrement { model | count = model.count - 1 }
 
     else
         Underflow
 
-
-
 -- Update
-
 
 type Message
     = PersonEntered
@@ -62,15 +65,20 @@ update : Message -> Model -> Model
 update message model =
     case message of
         PersonEntered ->
-            increment model
+            case increment model of
+              SuccessfullIncrement m ->
+                { m | notification = Just "" }
+
+              MaximumReached ->
+                { model | notification = Just "Maximum amount of people reached." }
 
         PersonLeft ->
             case decrement model of
-                Successfull m ->
-                    m
+                SuccessfullDecrement m ->
+                    { m | notification = Just "" }
 
                 Underflow ->
-                    { model | notification = Just "A person left an empty area " }
+                    { model | notification = Just "A person left an empty area." }
 
 
 
