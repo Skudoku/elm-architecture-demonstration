@@ -67,7 +67,7 @@ update message model =
         PersonEntered ->
             case increment model of
               SuccessfullIncrement m ->
-                { m | notification = Just "" }
+                { m | notification = Nothing }
 
               MaximumReached ->
                 { model | notification = Just "Maximum amount of people reached." }
@@ -75,7 +75,7 @@ update message model =
         PersonLeft ->
             case decrement model of
                 SuccessfullDecrement m ->
-                    { m | notification = Just "" }
+                    { m | notification = Nothing }
 
                 Underflow ->
                     { model | notification = Just "A person left an empty area." }
